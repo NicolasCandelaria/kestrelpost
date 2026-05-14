@@ -24,9 +24,13 @@ func main() {
 	if hostKeyPath == "" {
 		hostKeyPath = ".ssh/kestrel_ed25519"
 	}
+	listenAddr := os.Getenv("KESTREL_LISTEN")
+	if listenAddr == "" {
+		listenAddr = ":2222"
+	}
 
 	s, err := wish.NewServer(
-		wish.WithAddress(":2222"),
+		wish.WithAddress(listenAddr),
 		wish.WithHostKeyPath(hostKeyPath),
 		wish.WithMiddleware(
 			bubbletea.Middleware(teaHandler),
@@ -42,7 +46,7 @@ func main() {
 	defer stop()
 
 	go func() {
-		log.Println("SSH listening on :2222")
+		log.Printf("SSH listening on %s", listenAddr)
 		if err := s.ListenAndServe(); err != nil && !errors.Is(err, ssh.ErrServerClosed) {
 			log.Printf("server stopped: %v", err)
 			stop()
