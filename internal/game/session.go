@@ -1,6 +1,10 @@
 package game
 
-import "kestrelpost/internal/ending"
+import (
+	"fmt"
+
+	"kestrelpost/internal/ending"
+)
 
 // Phase is the coarse UI mode for a play session.
 type Phase byte
@@ -15,7 +19,11 @@ const (
 type Session struct {
 	Phase Phase
 	State ending.RunState
+	// TxLog is an append-only transmission log (trimmed server-side).
+	TxLog []string
 }
+
+const txLogMaxLines = 64
 
 // NewSession starts night 1 with a full tank; automation is still “offline” narratively.
 func NewSession() *Session {
@@ -25,6 +33,13 @@ func NewSession() *Session {
 			Night: 1,
 			Fuel:  100,
 		},
+	}
+}
+
+func (s *Session) appendTx(line string) {
+	s.TxLog = append(s.TxLog, line)
+	if len(s.TxLog) > txLogMaxLines {
+		s.TxLog = s.TxLog[len(s.TxLog)-txLogMaxLines:]
 	}
 }
 
@@ -58,6 +73,17 @@ func (s *Session) ApplyChoice(choice int) {
 		return
 	}
 
+	var choiceLabel string
+	switch choice {
+	case 1:
+		choiceLabel = "long medical routing + reassurance"
+	case 2:
+		choiceLabel = "short factual packet"
+	case 3:
+		choiceLabel = "standby ping only"
+	}
+	s.appendTx(fmt.Sprintf("Night %d: committed [%d] %s.", n, choice, choiceLabel))
+
 	if s.State.Fuel <= 0 {
 		s.State.Fuel = 0
 		s.State.TerminalDarkNight = n
@@ -71,6 +97,11 @@ func (s *Session) ApplyChoice(choice int) {
 		s.State.Fuel = 0
 		s.State.TerminalDarkNight = 9
 		s.Phase = PhaseGameOver
+		return
+	}
+
+	if s.State.Night%3 == 0 && s.Phase == PhaseNight {
+		s.appendTx("HARROW (secondary): carrier tone + hash echo — no payload.")
 	}
 }
 
