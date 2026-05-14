@@ -43,9 +43,9 @@ ssh -p 2222 localhost
 ### Vertical slice (in-game)
 
 1. Press almost any key (except `q`) on the intro to start.
-2. Each **night**, pick **1**, **2**, or **3** to spend fuel and adjust state (hub, trust, kid investigation, Harrow alignment, Osei broadcast, convoy betrayal on the final beat).
-3. **Nine nights** span **three levels (acts)**: Level I (nights 1–3) triage, Level II (4–6) Kid + Harrow pressure, Level III (7–9) Cole, Osei loop, and endgame Maren.
-4. When fuel hits zero before night 9, after nine nights, or immediately on a convoy deal, the run ends and shows the **resolved ending** from `internal/ending`.
+2. Each **night**, pick **1**, **2**, or **3** to answer the traffic on the band. Your choices shape what survives the event—without spelling out the machinery on screen.
+3. **Nine nights** move from triage through pressure (Kid, Harrow) into the endgame (Cole, Osei, Maren, convoy).
+4. When the run ends, you see a **resolved ending** from `internal/ending` with a short epilogue. Reserve is shown only in the top bar (`reserve` tab).
 
 Optional: add to `~/.ssh/config` (see [Wish README](https://github.com/charmbracelet/wish) for `UserKnownHostsFile` tips during local dev).
 

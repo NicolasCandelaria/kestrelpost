@@ -90,7 +90,7 @@ func headerBar(w int, phase game.Phase, night, fuel int) string {
 	c1 := cell(relayOn, "r", "relay", "")
 	c2 := cell(false, "l", "log", "")
 	c3 := cell(false, "n", "night", fmt.Sprintf("%d", night))
-	c4 := cell(false, "f", "fuel", fmt.Sprintf("%d", fuel))
+	c4 := cell(false, "f", "reserve", fmt.Sprintf("%d", fuel))
 
 	return root.Width(w).Render(lg.JoinHorizontal(lg.Top, c1, c2, c3, c4))
 }
@@ -107,7 +107,7 @@ func footerBar(w int, phase game.Phase) string {
 		left = keyLo.Render("enter") + root.Render(" begin  ·  ") + keyLo.Render("any key") + root.Render(" start")
 		right = keyLo.Render("q") + root.Render(" quit")
 	case game.PhaseNight:
-		left = keyLo.Render("1") + root.Render(" long  ·  ") + keyLo.Render("2") + root.Render(" short  ·  ") + keyLo.Render("3") + root.Render(" standby")
+		left = keyLo.Render("1") + root.Render(" · ") + keyLo.Render("2") + root.Render(" · ") + keyLo.Render("3") + root.Render(" respond")
 		right = keyLo.Render("q") + root.Render(" quit")
 	default:
 		left = muted.Render("run complete")

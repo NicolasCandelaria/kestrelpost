@@ -22,7 +22,7 @@ func TestNightScript_coversNineNights(t *testing.T) {
 			t.Fatalf("night %d empty source", n)
 		}
 		for i := range c.Choices {
-			if c.Choices[i].Label == "" || c.Choices[i].Fuel <= 0 {
+			if c.Choices[i].Reply == "" || c.Choices[i].Fuel <= 0 {
 				t.Fatalf("night %d choice %d invalid", n, i+1)
 			}
 		}

@@ -82,14 +82,14 @@ func (s *Session) ApplyChoice(choice int) {
 	}
 	if ch.ConvoyBetray {
 		s.State.ConvoyBetrayal = true
-		s.appendTx(fmt.Sprintf("Night %d [%s]: [%d] %s — extraction call signed.", n, card.Source, choice, ch.Label))
+		s.appendTx(fmt.Sprintf("Night %d [%s]: [%d] %s — extraction call signed.", n, card.Source, choice, ch.Reply))
 		s.State.Fuel = 0
 		s.State.TerminalDarkNight = n
 		s.Phase = PhaseGameOver
 		return
 	}
 
-	s.appendTx(fmt.Sprintf("Night %d [%s]: [%d] %s", n, card.Source, choice, ch.Label))
+	s.appendTx(fmt.Sprintf("Night %d [%s]: [%d] %s", n, card.Source, choice, ch.Reply))
 
 	if s.State.Fuel <= 0 {
 		s.State.Fuel = 0

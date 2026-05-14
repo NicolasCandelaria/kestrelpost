@@ -148,10 +148,31 @@ func nightChoiceFromKey(ks string, k tea.Key) (int, bool) {
 	return 0, false
 }
 
+func endingHeadline(e ending.Ending) string {
+	switch e {
+	case ending.TheRelay:
+		return "The relay held — long enough for the hall to believe morning."
+	case ending.DarkFrequency:
+		return "You went tight. The wide band went quiet without forgiving anyone."
+	case ending.TheKidWasRight:
+		return "The kid’s thread closed on something that wasn’t a voice."
+	case ending.FullBroadcast:
+		return "The loop left your tower and kept running without your hand on it."
+	case ending.TheConvoy:
+		return "You traded the map for a seat. The road remembers both."
+	case ending.DeadAir:
+		return "The generator quit before the story did."
+	case ending.Fallback:
+		return "The log ended in a verdict the night wouldn’t name."
+	default:
+		return "Closure."
+	}
+}
+
 func epilogueParagraph(e ending.Ending) string {
 	switch e {
 	case ending.TheRelay:
-		return "The hall stayed lit. Maren’s voice thinned to static, then steadied as the convoy hash matched yours. You burned the tank on purpose at the relay window, and the log shows it: not heroics, just timing. The north held one more night because the key turned when it had to."
+		return "The hall stayed lit. Maren’s voice thinned to static, then steadied as the convoy hash matched yours. You stayed on the key until the window closed—not heroics, just timing. The north held one more night because someone kept answering when answering still mattered."
 	case ending.DarkFrequency:
 		return "Harrow’s carrier outlasted your denial. What you thought was noise lined up into steps—someone else walking the same band plan. You finished the shift with clean hands and a dirty frequency; the next op inherits the hum you wouldn’t name."
 	case ending.TheKidWasRight:
@@ -161,7 +182,7 @@ func epilogueParagraph(e ending.Ending) string {
 	case ending.TheConvoy:
 		return "The convoy key lied, and the log caught the seam too late. Trust didn’t break in one message—it sheared along an old fault you’d been papering over with procedure. You signed off correct; the road still went wrong."
 	case ending.DeadAir:
-		return "Fuel died early; the last frames are just breath and backoff. Maren’s side went dark while you were still reaching for the next prefix. The ending isn’t moral—it’s mechanical: not enough joules left to be kind."
+		return "The last frames are breath and backoff. Maren’s side went dark while you were still reaching for the next prefix. The ending isn’t moral—it’s mechanical: the machine ran out of room to be kind."
 	case ending.Fallback:
 		return "The board closed on a verdict that fit the numbers more than the night. Nothing dramatic in the log—just drift, compromise, and the ordinary way a relay stops being yours. You shut it down; the story keeps going without a headline."
 	default:
@@ -184,17 +205,17 @@ func (m *Model) View() tea.View {
 	switch m.session.Phase {
 	case game.PhaseIntro:
 		b.WriteString("RELAY POST KESTREL\n\n")
-		b.WriteString("You are OPERATOR 7. Automation failed during the event.\n")
-		b.WriteString("The HF rig is yours until the fuel is gone.\n\n")
-		b.WriteString("When you are ready, start the shift from the footer shortcuts.\n")
-		b.WriteString("Bare modifier keys are ignored on this screen.\n\n")
-		b.WriteString("Nine nights across three levels (acts). Use 1 / 2 / 3 (main row or keypad) each night.\n")
+		b.WriteString("Northern Manitoba. A repeater tower that used to run itself—until the chain broke mid-event and left you holding the key.\n\n")
+		b.WriteString("You are OPERATOR 7. On paper you’re redundancy. In practice you’re the voice people find when the usual nets go strange: Maren at the hall, strangers on scan, ")
+		b.WriteString("sometimes a second operator who signs like a colleague and argues like a strategist.\n\n")
+		b.WriteString("Each night the band fills with requests for truth, time, and silence you can’t give everyone. Listen, answer, or refuse—then live in what that costs.\n\n")
+		b.WriteString("Use the footer keys when you’re ready. Bare modifier taps won’t start a shift.\n")
 	case game.PhaseNight:
 		s := &m.session.State
 		card := m.session.CurrentNightCard()
 		b.WriteString(game.ActTitle(card.Act))
 		b.WriteString("\n\n")
-		b.WriteString(fmt.Sprintf("SHIFT · NIGHT %d · FUEL %d\n\n", s.Night, s.Fuel))
+		b.WriteString(fmt.Sprintf("SHIFT · NIGHT %d\n\n", s.Night))
 		if tail := tailStrings(m.session.TxLog, txLogViewLines); len(tail) > 0 {
 			b.WriteString("TRANSMISSION LOG (tail)\n")
 			for _, line := range tail {
@@ -206,15 +227,17 @@ func (m *Model) View() tea.View {
 		}
 		b.WriteString(fmt.Sprintf("INCOMING — %s  (%s)\n", card.Source, card.Hash))
 		b.WriteString("────────────────────────────────────────\n")
-		b.WriteString(fmt.Sprintf("\"%s\"\n\n", card.Quote))
+		b.WriteString(card.Quote)
+		b.WriteString("\n\n")
 		for i := range card.Choices {
 			ch := card.Choices[i]
-			b.WriteString(fmt.Sprintf("  [%d]  %s\n", i+1, ch.Label))
+			b.WriteString(fmt.Sprintf("  [%d]  %s\n", i+1, ch.Reply))
 		}
 	case game.PhaseGameOver:
 		e := m.session.Ending()
-		b.WriteString("GENERATOR / BATTERY — END OF RUN\n\n")
-		b.WriteString(fmt.Sprintf("RESOLVED ENDING · %s\n\n", e.String()))
+		b.WriteString("END OF RUN\n\n")
+		b.WriteString(endingHeadline(e))
+		b.WriteString("\n\n")
 		b.WriteString(epilogueParagraph(e))
 		b.WriteString("\n")
 	}
