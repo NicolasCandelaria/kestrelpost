@@ -10,7 +10,12 @@ func TestSession_earlyFuelLoss_deadAir(t *testing.T) {
 	s := NewSession()
 	s.BeginFromIntro()
 	for s.Phase == PhaseNight {
-		s.ApplyChoice(1) // −22 fuel each; blackout before night 7 → DEAD AIR
+		// Night 6 is Harrow: choice 1 sets Harrow plan (resolver → DARK_FREQUENCY, not DEAD AIR).
+		if s.State.Night == 6 {
+			s.ApplyChoice(2)
+		} else {
+			s.ApplyChoice(1)
+		}
 	}
 	if s.Phase != PhaseGameOver {
 		t.Fatalf("phase = %v want game over", s.Phase)

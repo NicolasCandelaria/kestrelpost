@@ -50,39 +50,46 @@ func (s *Session) BeginFromIntro() {
 	}
 }
 
+// CurrentNightCard is the script beat for the active night.
+func (s *Session) CurrentNightCard() NightCard {
+	if s.Phase != PhaseNight {
+		return NightScript(1)
+	}
+	return NightScript(s.State.Night)
+}
+
 // ApplyChoice handles operator response for the current night (keys 1–3).
-// Costs and deltas are placeholders until narrative content exists.
 func (s *Session) ApplyChoice(choice int) {
 	if s.Phase != PhaseNight {
 		return
 	}
+	if choice < 1 || choice > 3 {
+		return
+	}
 	n := s.State.Night
-	switch choice {
-	case 1: // long open channel to Maren
-		s.State.Fuel -= 22
-		s.State.MarenHubSupport += 2
-		s.State.MarenTrust += 1
-	case 2: // short acknowledgment (tuned so nine nights can finish without early blackout)
-		s.State.Fuel -= 10
-		s.State.MarenHubSupport += 1
-		s.State.MarenTrust += 1
-	case 3: // standby — minimal draw, relationship cools
-		s.State.Fuel -= 3
-		s.State.MarenTrust -= 1
-	default:
+	card := NightScript(n)
+	ch := card.Choices[choice-1]
+
+	s.State.Fuel -= ch.Fuel
+	s.State.MarenHubSupport += ch.Hub
+	s.State.MarenTrust += ch.Trust
+	s.State.KidInvestigation += ch.Kid
+	if ch.SetHarrow {
+		s.State.HarrowDarkPlan = true
+	}
+	if ch.OseiRelease {
+		s.State.OseiFullRelease = true
+	}
+	if ch.ConvoyBetray {
+		s.State.ConvoyBetrayal = true
+		s.appendTx(fmt.Sprintf("Night %d [%s]: [%d] %s — extraction call signed.", n, card.Source, choice, ch.Label))
+		s.State.Fuel = 0
+		s.State.TerminalDarkNight = n
+		s.Phase = PhaseGameOver
 		return
 	}
 
-	var choiceLabel string
-	switch choice {
-	case 1:
-		choiceLabel = "long medical routing + reassurance"
-	case 2:
-		choiceLabel = "short factual packet"
-	case 3:
-		choiceLabel = "standby ping only"
-	}
-	s.appendTx(fmt.Sprintf("Night %d: committed [%d] %s.", n, choice, choiceLabel))
+	s.appendTx(fmt.Sprintf("Night %d [%s]: [%d] %s", n, card.Source, choice, ch.Label))
 
 	if s.State.Fuel <= 0 {
 		s.State.Fuel = 0
@@ -93,15 +100,10 @@ func (s *Session) ApplyChoice(choice int) {
 
 	s.State.Night++
 	if s.State.Night > 9 {
-		// Completed the nine-night runway with fuel remaining — force shutdown for resolver.
 		s.State.Fuel = 0
 		s.State.TerminalDarkNight = 9
 		s.Phase = PhaseGameOver
 		return
-	}
-
-	if s.State.Night%3 == 0 && s.Phase == PhaseNight {
-		s.appendTx("HARROW (secondary): carrier tone + hash echo — no payload.")
 	}
 }
 

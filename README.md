@@ -42,9 +42,10 @@ ssh -p 2222 localhost
 
 ### Vertical slice (in-game)
 
-1. Press any key (except `q`) on the intro to start.
-2. Each **night**, pick **1**, **2**, or **3** to spend fuel and adjust Maren hub/trust placeholders.
-3. When fuel hits zero before night 9, or after you complete the nine-night runway, the run ends and shows the **resolved ending** from `internal/ending` (e.g. `DEAD_AIR` vs `THE_RELAY`).
+1. Press almost any key (except `q`) on the intro to start.
+2. Each **night**, pick **1**, **2**, or **3** to spend fuel and adjust state (hub, trust, kid investigation, Harrow alignment, Osei broadcast, convoy betrayal on the final beat).
+3. **Nine nights** span **three levels (acts)**: Level I (nights 1–3) triage, Level II (4–6) Kid + Harrow pressure, Level III (7–9) Cole, Osei loop, and endgame Maren.
+4. When fuel hits zero before night 9, after nine nights, or immediately on a convoy deal, the run ends and shows the **resolved ending** from `internal/ending`.
 
 Optional: add to `~/.ssh/config` (see [Wish README](https://github.com/charmbracelet/wish) for `UserKnownHostsFile` tips during local dev).
 
@@ -60,4 +61,4 @@ Pure logic in `internal/ending` implements `docs/superpowers/specs/2026-05-14-ke
 
 ## Session loop
 
-`internal/game` advances nights and fuel, then calls `ending.ResolveEnding` on game over. Replace the stub transmission and choice deltas with real content when you add narrative data.
+`internal/game` advances nights and fuel using **`script.go`** (nine `NightCard`s across three acts). `Session.ApplyChoice` updates `ending.RunState` flags (Harrow, Osei release, convoy betrayal, kid steps) then calls `ending.ResolveEnding` on game over. Replace or extend `NightScript` to grow the story.

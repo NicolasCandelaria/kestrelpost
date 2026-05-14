@@ -188,9 +188,12 @@ func (m *Model) View() tea.View {
 		b.WriteString("The HF rig is yours until the fuel is gone.\n\n")
 		b.WriteString("When you are ready, start the shift from the footer shortcuts.\n")
 		b.WriteString("Bare modifier keys are ignored on this screen.\n\n")
-		b.WriteString("Then use 1 / 2 / 3 (main row or keypad) each night to commit bandwidth.\n")
+		b.WriteString("Nine nights across three levels (acts). Use 1 / 2 / 3 (main row or keypad) each night.\n")
 	case game.PhaseNight:
 		s := &m.session.State
+		card := m.session.CurrentNightCard()
+		b.WriteString(game.ActTitle(card.Act))
+		b.WriteString("\n\n")
 		b.WriteString(fmt.Sprintf("SHIFT · NIGHT %d · FUEL %d\n\n", s.Night, s.Fuel))
 		if tail := tailStrings(m.session.TxLog, txLogViewLines); len(tail) > 0 {
 			b.WriteString("TRANSMISSION LOG (tail)\n")
@@ -201,12 +204,13 @@ func (m *Model) View() tea.View {
 			}
 			b.WriteString("\n")
 		}
-		b.WriteString("INCOMING — MAREN  (relay hash 9f2c)\n")
+		b.WriteString(fmt.Sprintf("INCOMING — %s  (%s)\n", card.Source, card.Hash))
 		b.WriteString("────────────────────────────────────────\n")
-		b.WriteString("\"We’re holding eight at the hall. Fever in two. What do I do?\"\n\n")
-		b.WriteString("  [1]  Long medical routing + reassurance  (−22 fuel · +hub · +trust)\n")
-		b.WriteString("  [2]  Short factual packet               (−10 fuel · +hub · +trust)\n")
-		b.WriteString("  [3]  Standby ping only                  (−3 fuel  · −trust)\n")
+		b.WriteString(fmt.Sprintf("\"%s\"\n\n", card.Quote))
+		for i := range card.Choices {
+			ch := card.Choices[i]
+			b.WriteString(fmt.Sprintf("  [%d]  %s\n", i+1, ch.Label))
+		}
 	case game.PhaseGameOver:
 		e := m.session.Ending()
 		b.WriteString("GENERATOR / BATTERY — END OF RUN\n\n")
