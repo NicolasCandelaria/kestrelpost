@@ -22,17 +22,19 @@ func (m *Model) Init() tea.Cmd {
 }
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	// Bubble Tea v2 sends key presses as [tea.KeyPressMsg]. Matching [tea.KeyMsg]
+	// alone can miss events depending on the client; releases are [tea.KeyReleaseMsg].
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		}
-		if m.session.Phase == game.PhaseIntro {
+		switch m.session.Phase {
+		case game.PhaseIntro:
 			m.session.BeginFromIntro()
 			return m, nil
-		}
-		if m.session.Phase == game.PhaseNight {
+		case game.PhaseNight:
 			switch msg.String() {
 			case "1", "2", "3":
 				m.session.ApplyChoice(int(msg.String()[0] - '0'))
@@ -50,7 +52,7 @@ func (m *Model) View() tea.View {
 		b.WriteString("RELAY POST KESTREL — NORTHERN MANITOBA\n\n")
 		b.WriteString("You are OPERATOR 7. Automation failed during the event.\n")
 		b.WriteString("The HF rig is yours until the fuel is gone.\n\n")
-		b.WriteString("Press any letter key to begin your shift.\n\n")
+		b.WriteString("Press Enter or any key (except q) to begin your shift.\n\n")
 		b.WriteString("Then: 1–3 choose how to spend tonight’s bandwidth.\n")
 		b.WriteString("Press q to disconnect.\n")
 	case game.PhaseNight:
