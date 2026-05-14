@@ -14,23 +14,33 @@ const txLogViewLines = 6
 // Model is the root Bubble Tea model for one SSH session.
 type Model struct {
 	session *game.Session
+	width   int // from WindowSizeMsg; chrome uses effectiveWidth(width)
 }
 
 func NewModel() *Model {
-	return &Model{session: game.NewSession()}
+	return &Model{session: game.NewSession(), width: 80}
 }
 
 func (m *Model) Init() tea.Cmd {
-	return nil
+	return tea.RequestWindowSize
 }
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Bubble Tea v2: presses are [tea.KeyPressMsg], releases are [tea.KeyReleaseMsg].
 	// Some SSH/terminal paths may surface other [tea.KeyMsg] implementations.
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		if msg.Width > 0 {
+			m.width = msg.Width
+		}
+		return m, nil
 	case tea.KeyPressMsg:
 		return m.dispatchKey(msg.String(), msg.Key())
 	case tea.KeyReleaseMsg:
+		// Some clients/PTY stacks surface releases without a press; allow intro to advance.
+		if m.session.Phase == game.PhaseIntro {
+			return m.dispatchKey(msg.String(), msg.Key())
+		}
 		return m, nil
 	case tea.KeyMsg:
 		return m.dispatchKey(msg.String(), msg.Key())
@@ -173,38 +183,39 @@ func (m *Model) View() tea.View {
 	var b strings.Builder
 	switch m.session.Phase {
 	case game.PhaseIntro:
-		b.WriteString("RELAY POST KESTREL — NORTHERN MANITOBA\n\n")
+		b.WriteString("RELAY POST KESTREL\n\n")
 		b.WriteString("You are OPERATOR 7. Automation failed during the event.\n")
 		b.WriteString("The HF rig is yours until the fuel is gone.\n\n")
-		b.WriteString("Press Enter, Return, Space, or most other keys to begin (bare modifier keys are ignored).\n")
-		b.WriteString("q or Ctrl+C disconnects.\n\n")
-		b.WriteString("Then: 1–3 choose how to spend tonight’s bandwidth (main row or keypad).\n")
-		b.WriteString("Press q to disconnect.\n")
+		b.WriteString("When you are ready, start the shift from the footer shortcuts.\n")
+		b.WriteString("Bare modifier keys are ignored on this screen.\n\n")
+		b.WriteString("Then use 1 / 2 / 3 (main row or keypad) each night to commit bandwidth.\n")
 	case game.PhaseNight:
 		s := &m.session.State
-		b.WriteString(fmt.Sprintf("OPERATOR 7 · NIGHT %d · FUEL %d\n\n", s.Night, s.Fuel))
+		b.WriteString(fmt.Sprintf("SHIFT · NIGHT %d · FUEL %d\n\n", s.Night, s.Fuel))
 		if tail := tailStrings(m.session.TxLog, txLogViewLines); len(tail) > 0 {
-			b.WriteString("TRANSMISSION LOG (last lines)\n")
+			b.WriteString("TRANSMISSION LOG (tail)\n")
 			for _, line := range tail {
-				b.WriteString("  ")
+				b.WriteString("  │ ")
 				b.WriteString(line)
 				b.WriteString("\n")
 			}
 			b.WriteString("\n")
 		}
-		b.WriteString("INCOMING — MAREN (relay hash 9f2c)\n")
+		b.WriteString("INCOMING — MAREN  (relay hash 9f2c)\n")
+		b.WriteString("────────────────────────────────────────\n")
 		b.WriteString("\"We’re holding eight at the hall. Fever in two. What do I do?\"\n\n")
-		b.WriteString("  [1] Long medical routing + reassurance (−22 fuel, +hub, +trust)\n")
-		b.WriteString("  [2] Short factual packet (−10 fuel, +hub, +trust)\n")
-		b.WriteString("  [3] Standby ping only (−3 fuel, −trust)\n\n")
-		b.WriteString("Keys 1–3 commit. q quits.\n")
+		b.WriteString("  [1]  Long medical routing + reassurance  (−22 fuel · +hub · +trust)\n")
+		b.WriteString("  [2]  Short factual packet               (−10 fuel · +hub · +trust)\n")
+		b.WriteString("  [3]  Standby ping only                  (−3 fuel  · −trust)\n")
 	case game.PhaseGameOver:
+		e := m.session.Ending()
 		b.WriteString("GENERATOR / BATTERY — END OF RUN\n\n")
-		b.WriteString(fmt.Sprintf("Resolved ending: %s\n\n", m.session.Ending().String()))
-		b.WriteString(epilogueParagraph(m.session.Ending()))
-		b.WriteString("\n\nPress q to disconnect.\n")
+		b.WriteString(fmt.Sprintf("RESOLVED ENDING · %s\n\n", e.String()))
+		b.WriteString(epilogueParagraph(e))
+		b.WriteString("\n")
 	}
-	v := tea.NewView(b.String())
+	framed := shopFrame(m.width, m.session.Phase, m.session.State.Night, m.session.State.Fuel, b.String())
+	v := tea.NewView(framed)
 	v.AltScreen = true
 	return v
 }

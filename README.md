@@ -1,6 +1,6 @@
 # Kestrel Post
 
-SSH narrative game (Wish + Bubble Tea v2). Design docs live under `docs/superpowers/`.
+SSH narrative game (Wish + Bubble Tea v2). The in-game UI uses a **terminal.shop–style** chrome (grid header, framed body, shortcut footer); layout is [Lip Gloss](https://github.com/charmbracelet/lipgloss) v2. Aesthetic nod: [terminal.shop clone (Rust)](https://github.com/IsaiahPapa/terminal.shop). Design docs live under `docs/superpowers/`.
 
 ## Prerequisites
 
