@@ -53,94 +53,95 @@ func NightScript(night int) NightCard {
 	switch night {
 	case 1:
 		return NightCard{1, "MAREN", "9f2c",
-			"Maren breaks squelch twice before she trusts the open carrier.\n\n" +
-				"“Operator Seven—Kestrel. I’ve got eight in the hall. Two fevers climbing, one kid who won’t take water. The clinic net is rumor soup.\n" +
-				"I need a line on who still has power north of the washout—not churches, not ghost towns. A place that can take blood work if we move at dawn.”\n\n" +
-				"Under the hash you hear gym mats dragged, a kettle clicking, someone counting breaths like inventory.",
+			"Maren comes through after two failed calls. Her signal is weak, but her voice is steady.\n\n" +
+				"“Kestrel, this is Maren at the community hall. I have eight people here. Two have high fevers, and one child cannot keep water down. The clinic channel is full of conflicting reports.\n" +
+				"I need to know which site north of the washout still has power and medical supplies. If we move at dawn, I need the safest place to send them.”\n\n" +
+				"You hear people coughing behind her and someone dragging tables across the floor.",
 			[3]Choice{
-				{Reply: "Stay with her. Walk the rail spur triangle aloud—triage site, diesel on the wind, the substation that looks fine but isn’t. Make her read the map back before you let go of the key.", Fuel: 18, Hub: 2, Trust: 1},
-				{Reply: "Keep it short: one bearing, one landmark, one rule—if the lights die, the fridge wins. Then cut so she can work.", Fuel: 10, Hub: 1, Trust: 1},
-				{Reply: "Send a single tone and your callsign only. You’ll patch the rest when the band quiets—even if she thinks you’ve gone cold.", Fuel: 3, Hub: 0, Trust: -1},
+				{Reply: "Keep Maren on the radio. Give her the route to the school gym, warn her about the flooded service road, and make her repeat the directions before anyone leaves.", Fuel: 18, Hub: 2, Trust: 1},
+				{Reply: "Give her the nearest usable site and one clear landmark, then sign off so she can organize the room.", Fuel: 10, Hub: 1, Trust: 1},
+				{Reply: "Send only your callsign and tell her to hold position until you can confirm more. It gives you time, but leaves her without a plan.", Fuel: 3, Hub: 0, Trust: -1},
 			}}
 	case 2:
 		return NightCard{1, "MAREN", "9f2c",
-			"Her voice is thinner. A generator coughs in the background like an animal.\n\n" +
-				"“If I run the hall lights past midnight I lose the vaccine fridge. I can’t do poetry right now, Seven—tell me straight. Heat or light. Which one gets the knife?”\n\n" +
-				"You picture the hall: breath fogging, tape on the floor, parents trading shifts with their coats still on.",
+			"Maren calls again near midnight. The hall generator is running rough.\n\n" +
+				"“If I keep the heat and lights on all night, the vaccine fridge dies before morning. If I protect the fridge, the hall gets cold fast.\n" +
+				"I need a decision I can defend to scared people. Heat for the room, or power for the medicine?”\n\n" +
+				"The carrier catches a child crying, then a door slamming shut against the cold.",
 			[3]Choice{
-				{Reply: "Talk her through a heat curfew: where bodies sleep, where doors seal, how long the fridge can hold if nobody opens it for vanity. Make the choice feel owned, not imposed.", Fuel: 20, Hub: 2, Trust: 1},
-				{Reply: "One sentence only: fridge first. Then silence—trust that she’ll translate fear into procedure without you narrating it.", Fuel: 10, Hub: 1, Trust: 1},
-				{Reply: "Tell her you need morning weather and band noise before you commit. It buys you minutes; it also leaves her alone with the thermostat.", Fuel: 4, Hub: 0, Trust: -1},
+				{Reply: "Talk her through a ration plan: seal the gym, move everyone into one corner, run heat in short bursts, and keep the fridge closed unless medicine is needed.", Fuel: 20, Hub: 2, Trust: 1},
+				{Reply: "Tell her to protect the medicine first and use coats, blankets, and body heat to get through the night.", Fuel: 10, Hub: 1, Trust: 1},
+				{Reply: "Tell her you cannot call it yet and need another weather report. It buys time for Kestrel, but she has to face the room alone.", Fuel: 4, Hub: 0, Trust: -1},
 			}}
 	case 3:
 		return NightCard{1, "MAREN", "9f2c",
-			"“Someone’s painting our band,” she says. “Not jamming—knocking. Like they’re testing whether Kestrel answers soft or loud.”\n\n" +
-				"I can go dark. I can answer. I can flip to your old training net and pretend I’m you for sixty seconds and probably regret it.\n" +
-				"What’s the move that doesn’t turn this hall into a lighthouse for every hungry ear between here and Hudson?”",
+			"Maren lowers her voice before she speaks.\n\n" +
+				"“Someone is testing our channel. They are not blocking us. They are calling once, waiting, then calling again from a slightly different frequency.\n" +
+				"If I answer, they learn we are here. If I go silent, I lose contact with anyone who might still help. What do you want me to do?”",
 			[3]Choice{
-				{Reply: "Give her a tight listen window and a safe CQ pattern—enough to learn who’s knocking without teaching them your grammar.", Fuel: 22, Hub: 2, Trust: 1},
-				{Reply: "Procedure voice: twenty minutes listen-only, log only, no hero keys. If it’s hostile, she’ll feel it without you dramatizing.", Fuel: 10, Hub: 1, Trust: 0},
-				{Reply: "Tell her to go dark and stay dark until you pattern-match from Kestrel. No net, no comfort—just survival and blame if it goes wrong.", Fuel: 3, Hub: 0, Trust: -1},
+				{Reply: "Give her a short test script: one reply, no location, no names, then listen for ten minutes and write down every response.", Fuel: 22, Hub: 2, Trust: 1},
+				{Reply: "Order her to stay listen-only for twenty minutes and log each call without answering.", Fuel: 10, Hub: 1, Trust: 0},
+				{Reply: "Tell her to power down the hall radio until you identify the caller from Kestrel.", Fuel: 3, Hub: 0, Trust: -1},
 			}}
 	case 4:
 		return NightCard{2, "KID", "—",
-			"A voice you don’t have a file for. Young. Too calm.\n\n" +
-				"“Kestrel,” they say, like they’ve been saving the name. “Do the geese still cross the river at dawn? I’m counting.”\n\n" +
-				"It sounds childish until you hear the second carrier underneath—clean, stable, wrong—like someone borrowed a nursery rhyme to tune an instrument.",
+			"A young voice cuts into the band. You do not recognize the callsign. The voice is calm in a way that makes the room feel smaller.\n\n" +
+				"“Kestrel, do geese still cross the river at dawn? I am counting them.”\n\n" +
+				"The question sounds harmless, but a second signal sits under the voice. It is too clean, too steady, and it follows every pause.",
 			[3]Choice{
-				{Reply: "Answer honestly about the birds and the light. Then ask, quietly, what they’re actually counting. Let the silence do part of the work.", Fuel: 16, Hub: 0, Trust: 0, Kid: 2},
-				{Reply: "Give them the plain seasonal truth—yes or no—nothing else. No warmth, no thread for them to pull.", Fuel: 10, Hub: 0, Trust: 0, Kid: 1},
-				{Reply: "Clip the carrier. Refuse the riddle. If they’re fishing, let them fish in empty water—even if it feels cruel from where you sit.", Fuel: 4, Hub: 0, Trust: -1, Kid: -1},
+				{Reply: "Answer the question plainly, then ask where they are and who taught them to use this channel.", Fuel: 16, Hub: 0, Trust: 0, Kid: 2},
+				{Reply: "Say only that geese cross at first light this time of year, then end the exchange.", Fuel: 10, Hub: 0, Trust: 0, Kid: 1},
+				{Reply: "Cut the transmission and mark the frequency as suspicious.", Fuel: 4, Hub: 0, Trust: -1, Kid: -1},
 			}}
 	case 5:
 		return NightCard{2, "MAREN", "9f2c",
-			"Maren doesn’t greet you. She reads a string like liturgy.\n\n" +
-				"“North road signature yesterday—your log called it civ. I need that to still be true tonight, because I’ve got people asking if they should run toward it.\n" +
-				"If you’re wrong, say you’re wrong now. If you’re guessing, say you’re guessing. I can’t sell ‘maybe’ to a room that already buried someone today.”",
+			"Maren comes back with no greeting.\n\n" +
+				"“Yesterday you logged a civilian truck convoy north of the washout. People here want to leave the hall and try to meet it.\n" +
+				"If that convoy is real, say so. If you only guessed, say that too. I cannot send families into the dark on a maybe.”",
 			[3]Choice{
-				{Reply: "Lay the hashes side by side—what you saw, what could mimic it, what would change your mind. End with what you would bet a life on.", Fuel: 22, Hub: 2, Trust: 1},
-				{Reply: "One line: civ pattern, as far as Kestrel knows. No flourishes. Enough for her to steer the room.", Fuel: 10, Hub: 1, Trust: 1},
-				{Reply: "Tell her you can’t confirm—not ‘no,’ not ‘yes,’ just fog. It keeps you clean on paper. It also leaves her holding the bag alone.", Fuel: 5, Hub: 1, Trust: -2},
+				{Reply: "Read her the log: time, direction, signal strength, and why you think it was civilian. Then tell her what would prove you wrong.", Fuel: 22, Hub: 2, Trust: 1},
+				{Reply: "Tell her the convoy looked civilian based on the last clean signal, but you cannot guarantee what it is now.", Fuel: 10, Hub: 1, Trust: 1},
+				{Reply: "Tell her you cannot confirm the convoy and will not recommend moving anyone toward it.", Fuel: 5, Hub: 1, Trust: -2},
 			}}
 	case 6:
 		return NightCard{2, "HARROW", "b81d",
-			"Post Harrow rides in narrow, professional, like a blade slid under a door.\n\n" +
-				"“You’re lighting up the commons like a Christmas tree, Kestrel. I can share a roster—two nets, one schedule, one lie we tell the sky together.\n" +
-				"Or we can keep pretending charity scales. Pick. I’m not here to be your villain; I’m here so neither of us cooks off the tower.”",
+			"Post Harrow breaks in with a clean signal and a trained operator.\n\n" +
+				"“Kestrel, your open calls are drawing attention. I can share our contact roster and split the traffic with you.\n" +
+				"You keep your hall. We keep ours. We stop broadcasting over each other before the wrong people map both sites.”",
 			[3]Choice{
-				{Reply: "Take the roster. Split the bands. Promise the ugly coordination work so Harrow’s people stop treating your survivors like interference.", Fuel: 18, Hub: 1, Trust: 0, SetHarrow: true},
-				{Reply: "Offer shared listen windows but refuse to shrink your net. Cooperation without surrender—knowing it may cost you both heat and sleep.", Fuel: 10, Hub: 1, Trust: 0},
-				{Reply: "Decline cold. No rationale on air. Let the carrier close on silence and live with what Harrow writes about you afterward.", Fuel: 4, Hub: 0, Trust: -1},
+				{Reply: "Accept Harrow’s roster and divide the channels so both shelters can transmit without stepping on each other.", Fuel: 18, Hub: 1, Trust: 0, SetHarrow: true},
+				{Reply: "Offer scheduled listening windows, but refuse to give Harrow control of Maren’s traffic.", Fuel: 10, Hub: 1, Trust: 0},
+				{Reply: "Decline the offer and close the channel before Harrow can press for details.", Fuel: 4, Hub: 0, Trust: -1},
 			}}
 	case 7:
 		return NightCard{3, "COLE", "44aa",
-			"Cole doesn’t waste callsigns. Twelve voices behind him, one truck idling you can almost smell through static.\n\n" +
-				"“Corridor truth,” he says. “Not myth. Not poetry. I get a corridor that still exists, you get me forgetting I ever heard a woman named Maren on your lip.\n" +
-				"Fair trade. Unfair world. Speak.”",
+			"Cole forces his way onto the channel. You hear a truck engine and several people talking behind him.\n\n" +
+				"“I know you are guiding people from Kestrel. Give me a passable route through the highway blocks, and I forget I heard the name Maren.\n" +
+				"Refuse, and I start looking for the hall myself.”",
 			[3]Choice{
-				{Reply: "Give him a corridor that was true once—stale enough to buy the hall time, sharp enough he believes you’re not bluffing.", Fuel: 20, Hub: 2, Trust: -1},
-				{Reply: "Burn his clock: plausible junk, plausible doubt, a story that moves his truck an hour the wrong way without firing a shot you can name.", Fuel: 10, Hub: 0, Trust: 1},
-				{Reply: "Refuse. Let the threat hang in the air. Let the hall hear what silence costs when you won’t negotiate with a loaded engine.", Fuel: 6, Hub: -1, Trust: 0},
+				{Reply: "Give Cole an old route that may still be open but sends him away from the hall.", Fuel: 20, Hub: 2, Trust: -1},
+				{Reply: "Keep him talking with partial directions and road warnings, wasting his time while Maren prepares to move.", Fuel: 10, Hub: 0, Trust: 1},
+				{Reply: "Refuse to bargain and warn Maren that Cole is listening for her location.", Fuel: 6, Hub: -1, Trust: 0},
 			}}
 	case 8:
 		return NightCard{3, "DR. OSEI", "loop",
-			"The loop arrives in shards—tape hiss, classroom cough, a voice trying to stay composed while the world unthreads.\n\n" +
-				"“…solar class… not disclosed… cascade… personnel…”\n\n" +
-				"You could clean it, normalize it, let it run clean once so people understand what happened—or keep it in the drawer and decide who deserves the weight tonight.",
+			"An old recording repeats on an emergency frequency. It is damaged, but the speaker identifies herself as Dr. Osei.\n\n" +
+				"“…solar event larger than disclosed… grid cascade already underway… personnel advised not to travel…”\n\n" +
+				"If you rebroadcast the file, shelters may finally understand what happened. They may also panic, move too soon, or draw attention by calling for answers.",
 			[3]Choice{
-				{Reply: "Stabilize the audio, strip the worst of the hash noise, and let the whole clip ride every open net you still own until the sky changes color.", Fuel: 24, Hub: 0, Trust: 0, OseiRelease: true},
-				{Reply: "Archive the raw locally. Send Maren a redacted slice—enough to change her night, not enough to paint a target on her roof.", Fuel: 10, Hub: 2, Trust: 1},
-				{Reply: "Checksum it, log it, do not forward. You become the only spine that remembers—until memory becomes its own kind of violence.", Fuel: 5, Hub: 0, Trust: 0},
+				{Reply: "Clean the audio enough to understand and rebroadcast the full recording on every channel you can reach.", Fuel: 24, Hub: 0, Trust: 0, OseiRelease: true},
+				{Reply: "Save the full recording, but send Maren only the parts that help her make decisions tonight.", Fuel: 10, Hub: 2, Trust: 1},
+				{Reply: "Log the recording and keep it off the air until you know who else is listening.", Fuel: 5, Hub: 0, Trust: 0},
 			}}
 	case 9:
 		return NightCard{3, "MAREN / SKY", "9f2c",
-			"Maren sounds like someone standing at a window while the horizon misbehaves.\n\n" +
-				"“Hall’s full. Cole’s truck hash is on the road. Harrow’s carrier just winked at me like a neighbor who knows my schedule.\n" +
-				"Seven—who gets your last good hour? Me, them, or yourself? Don’t be brave. Be accurate.”",
+			"Maren’s final call is clear enough that you can hear wind against the hall doors.\n\n" +
+				"“The hall is full. Cole is on the road. Harrow just called close enough to know our schedule.\n" +
+				"If Kestrel has one more clean hour, I need to know where you are putting it. Do we move the hall, split the network, or trust the convoy message that just came in?”",
 			[3]Choice{
-				{Reply: "Give her the last hour: maps, prefixes, the blunt truth about what still answers when Kestrel goes quiet. You spend yourself so the hall can keep a door cracked.", Fuel: 26, Hub: 3, Trust: 2},
-				{Reply: "Split the hour into slices—fifteen minutes for her net, fifteen for yours, fifteen for the air you refuse to own. Nobody gets a crown; everybody gets a chance.", Fuel: 10, Hub: 2, Trust: 1},
-				{Reply: "Name the hall’s grid and the cache path. Tell her extraction is inbound and not to trust any other voice until morning—then live inside what that promise costs.", Fuel: 8, Hub: -2, Trust: -3, ConvoyBetray: true},
+				{Reply: "Use the hour for Maren: confirm the safest exit route, mark the hostile frequencies, and give her the last verified shelter list.", Fuel: 26, Hub: 3, Trust: 2},
+				{Reply: "Divide the hour between Maren, Harrow, and the open emergency channel so no one group is left completely blind.", Fuel: 10, Hub: 2, Trust: 1},
+				{Reply: "Give Maren the convoy’s grid and tell her to wait for extraction, even though you cannot verify who sent the message.", Fuel: 8, Hub: -2, Trust: -3, ConvoyBetray: true},
 			}}
 	default:
 		return NightScript(1)

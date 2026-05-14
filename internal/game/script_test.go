@@ -1,6 +1,9 @@
 package game
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestActForNight(t *testing.T) {
 	tests := []struct {
@@ -24,6 +27,32 @@ func TestNightScript_coversNineNights(t *testing.T) {
 		for i := range c.Choices {
 			if c.Choices[i].Reply == "" || c.Choices[i].Fuel <= 0 {
 				t.Fatalf("night %d choice %d invalid", n, i+1)
+			}
+		}
+	}
+}
+
+func TestNightScript_dialogueAvoidsVaguePhrases(t *testing.T) {
+	banned := []string{
+		"diesel on the wind",
+		"hungry ear",
+		"sky grammar",
+		"spend yourself",
+		"air you refuse to own",
+		"corridor truth",
+		"lighthouse",
+		"charity scales",
+	}
+
+	for n := 1; n <= 9; n++ {
+		c := NightScript(n)
+		text := strings.ToLower(c.Quote)
+		for i := range c.Choices {
+			text += "\n" + strings.ToLower(c.Choices[i].Reply)
+		}
+		for _, phrase := range banned {
+			if strings.Contains(text, phrase) {
+				t.Fatalf("night %d contains vague phrase %q", n, phrase)
 			}
 		}
 	}
