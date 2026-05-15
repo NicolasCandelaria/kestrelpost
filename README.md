@@ -1,64 +1,155 @@
 # Kestrel Post
 
-SSH narrative game (Wish + Bubble Tea v2). The in-game UI uses a **terminal.shop–style** chrome (grid header, framed body, shortcut footer); layout is [Lip Gloss](https://github.com/charmbracelet/lipgloss) v2. Aesthetic nod: [terminal.shop clone (Rust)](https://github.com/IsaiahPapa/terminal.shop). Design docs live under `docs/superpowers/`.
+A story game you play in your terminal over SSH. You are Operator 7 at a northern relay post, answering radio traffic night by night until the run ends.
 
-## Prerequisites
+**Repository:** [github.com/NicolasCandelaria/kestrelpost](https://github.com/NicolasCandelaria/kestrelpost)
 
-- [Go](https://go.dev/dl/) — use a recent stable release; the `go` line in `go.mod` is the minimum version the Charm stack requested when last tidied.
+---
 
-## Run (development)
+## What you need
 
-Generate a host key once:
+Install these once on the computer that will **run the game**:
+
+| Tool | Get it |
+|------|--------|
+| **Go** | [go.dev/dl](https://go.dev/dl/) |
+| **Git** | [git-scm.com](https://git-scm.com/downloads) |
+| **SSH client** | Usually already installed (Terminal on Mac/Linux; Windows 10/11 includes OpenSSH) |
+
+You do **not** need to install anything extra on a second computer if you only **connect** to a game that is already running on another machine (see [Play from another computer on your network](#play-from-another-computer-on-your-network)).
+
+---
+
+## Quick start (same computer)
+
+Use **two terminal windows** on one machine: one runs the server, one plays the game.
+
+### Step 1 — Get the code
+
+**Mac / Linux**
+
+```bash
+git clone https://github.com/NicolasCandelaria/kestrelpost.git
+cd kestrelpost
+go mod tidy
+```
+
+**Windows (PowerShell)**
+
+```powershell
+git clone https://github.com/NicolasCandelaria/kestrelpost.git
+Set-Location kestrelpost
+go mod tidy
+```
+
+### Step 2 — Create an SSH host key (first time only)
+
+The server needs a key file in the project folder. Run this **once** inside `kestrelpost`:
+
+**Mac / Linux**
 
 ```bash
 mkdir -p .ssh
 ssh-keygen -t ed25519 -f .ssh/kestrel_ed25519 -N ""
 ```
 
-On Windows PowerShell:
+**Windows (PowerShell)**
 
 ```powershell
 New-Item -ItemType Directory -Force .ssh | Out-Null
 ssh-keygen -t ed25519 -f .ssh/kestrel_ed25519 -N '""'
 ```
 
-Sync modules (writes `go.sum`):
+If asked to overwrite, you can say yes only if you are setting up fresh.
 
-```bash
-go mod tidy
-```
+### Step 3 — Start the server
 
-Start the server:
+Leave this window **open**:
 
 ```bash
 go run ./cmd/kestrelpost
 ```
 
-Connect:
+You should see something like: `SSH listening on :2222`
+
+### Step 4 — Play (second terminal)
+
+Open a **new** terminal, then connect:
 
 ```bash
 ssh -p 2222 localhost
 ```
 
-### Vertical slice (in-game)
+The first time, your SSH client may warn about an unknown host key — that is normal for local play. Accept it (type `yes` if prompted).
 
-1. Press almost any key (except `q`) on the intro to start.
-2. Each **night**, pick **1**, **2**, or **3** to answer the traffic on the band. Your choices shape what survives the event—without spelling out the machinery on screen.
-3. **Nine nights** move from triage through pressure (Kid, Harrow) into the endgame (Cole, Osei, Maren, convoy).
-4. When the run ends, you see a **resolved ending** from `internal/ending` with a short epilogue. Reserve is shown only in the top bar (`reserve` tab).
+To quit the game: press **`q`**. To stop the server: go to the server window and press **Ctrl+C**.
 
-Optional: add to `~/.ssh/config` (see [Wish README](https://github.com/charmbracelet/wish) for `UserKnownHostsFile` tips during local dev).
+---
 
-## Tests
+## Play on a different computer
+
+### Same machine, different day
+
+Repeat **Quick start** on that computer: clone (or pull latest), `go mod tidy`, start the server, then `ssh -p 2222 localhost`.
+
+### Play from another computer on your network
+
+1. On the **host** (the PC running the game), do **Steps 1–3** above and note its local IP address.
+   - **Windows:** `ipconfig` → look for **IPv4 Address** (e.g. `192.168.1.25`)
+   - **Mac:** System Settings → Network, or `ipconfig getifaddr en0`
+2. Allow port **2222** through the host firewall if connections fail.
+3. On the **other** computer, open a terminal and run (replace with the host IP):
 
 ```bash
-go test ./...
+ssh -p 2222 192.168.1.25
 ```
 
-## Ending resolver
+Both computers must be on the same Wi‑Fi or LAN. This does **not** work over the public internet unless you set up port forwarding or a tunnel yourself.
 
-Pure logic in `internal/ending` implements `docs/superpowers/specs/2026-05-14-kestrel-post-ending-evaluator-design.md`.
+---
 
-## Session loop
+## How to play
 
-`internal/game` advances nights and fuel using **`script.go`** (nine `NightCard`s across three acts). `Session.ApplyChoice` updates `ending.RunState` flags (Harrow, Osei release, convoy betrayal, kid steps) then calls `ending.ResolveEnding` on game over. Replace or extend `NightScript` to grow the story.
+1. On the intro screen, press almost any key (not **`q`**) to begin.
+2. Each **night**, press **`1`**, **`2`**, or **`3`** to choose your response.
+3. The run lasts up to **nine nights**. Your choices affect the ending; the game does not show stat labels like “+trust” on screen.
+4. When the run ends, read the epilogue. Press **`q`** to exit.
+
+**Reserve** (how much you can still push the rig) appears only in the **top bar**, not in the main story panel.
+
+---
+
+## Troubleshooting
+
+| Problem | What to try |
+|---------|-------------|
+| `go: command not found` | Install Go and open a **new** terminal after installing. |
+| `ssh: command not found` (Windows) | Install [OpenSSH Client](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse) or use Git Bash. |
+| `Connection refused` on port 2222 | Start the server first (`go run ./cmd/kestrelpost`) and keep that window open. |
+| `no such file` for host key | Run **Step 2** (host key) inside the `kestrelpost` folder. |
+| Cannot connect from another PC | Check IP address, same network, and firewall on the host for port **2222**. |
+
+---
+
+## Optional settings
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `KESTREL_HOST_KEY` | `.ssh/kestrel_ed25519` | Path to the server host key file |
+| `KESTREL_LISTEN` | `:2222` | Address/port to listen on (e.g. `:22` only if nothing else uses port 22) |
+
+Example (Mac / Linux):
+
+```bash
+export KESTREL_LISTEN=":2222"
+go run ./cmd/kestrelpost
+```
+
+---
+
+## For developers
+
+- **Tests:** `go test ./...`
+- **Design:** `docs/superpowers/specs/2026-05-14-kestrel-post-ending-evaluator-design.md`
+- **Stack:** [Wish](https://github.com/charmbracelet/wish) + [Bubble Tea](https://github.com/charmbracelet/bubbletea) + [Lip Gloss](https://github.com/charmbracelet/lipgloss); UI chrome inspired by a [terminal.shop-style layout](https://github.com/IsaiahPapa/terminal.shop).
+- **Story / endings:** `internal/game/script.go` (nights), `internal/ending` (resolver).
