@@ -1,0 +1,18 @@
+number: 12
+act: 3
+source: KID
+hash: "--"
+pre_shift: "Pre-shift: blizzard conditions increase strange traffic and reduce line-of-sight."
+quote: |
+  "The Kid's clearest clue points toward 8.412 MHz."
+incident: "Incident: storm night reveals the clearest Kid clue chain signal."
+choices:
+  - id: follow_clue
+    text: "Hold on 8.412 long enough to catch the pattern."
+    effects: { fuel: 12, kid: 2 }
+  - id: partial_listen
+    text: "Log the clue and return to scheduled traffic."
+    effects: { fuel: 8, kid: 1 }
+  - id: dismiss_kid
+    text: "Treat the transmission as noise and ignore it."
+    effects: { fuel: 3, kid: -1, trust: -1 }

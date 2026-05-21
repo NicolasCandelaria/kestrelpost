@@ -1,0 +1,18 @@
+number: 14
+act: 3
+source: BUD
+hash: "cb6"
+pre_shift: "Pre-shift: Bud checks in again; this transmission contains key route context."
+quote: |
+  "Highway 6 route details leak by accident in small talk."
+incident: "Incident: patient listening reveals convoy route intel; Bud arc continues (part 2 of 3)."
+choices:
+  - id: patient_listen
+    text: "Keep Bud talking and capture route details."
+    effects: { fuel: 10, hub: 2 }
+  - id: extract_only
+    text: "Ask direct route questions and move on."
+    effects: { fuel: 7, hub: 1 }
+  - id: cut_for_time
+    text: "Cut the chatter to preserve antenna time."
+    effects: { fuel: 3 }

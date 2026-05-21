@@ -1,0 +1,1 @@
+Previous operator note: check sight-glass before first call, not after.

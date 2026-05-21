@@ -1,0 +1,1 @@
+Fridge load spikes after midnight. Rotate heater cycles if fuel dips below low mark.

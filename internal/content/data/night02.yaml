@@ -1,0 +1,18 @@
+number: 2
+act: 1
+source: MAREN
+hash: "9f2c"
+pre_shift: "Pre-shift: inspect the generator fuel smell and feed the dog."
+quote: |
+  "Heat for people or power for medicine. I need a decision now."
+incident: "Incident: brief brownout interrupts audio quality."
+choices:
+  - id: ration_plan
+    text: "Run heat in short bursts and preserve medicine power."
+    effects: { fuel: 14, hub: 2, trust: 1 }
+  - id: medicine_first
+    text: "Protect medicine first and conserve heat."
+    effects: { fuel: 9, hub: 1, trust: 1 }
+  - id: defer_decision
+    text: "Delay the decision and tell Maren to wait for your next call."
+    effects: { fuel: 4, hub: 0, trust: -1 }

@@ -1,0 +1,18 @@
+number: 13
+act: 3
+source: FATHER_JANSEN
+hash: "f13"
+pre_shift: "Pre-shift: Father Jansen's name-reading frequency opens at the top of the hour."
+quote: |
+  "Maren's mother's name is read among the dead."
+incident: "Incident: major information-holding decision; Father Jansen arc peaks (part 2 of 3)."
+choices:
+  - id: tell_maren
+    text: "Tell Maren immediately and include context."
+    effects: { fuel: 9, trust: 2 }
+  - id: defer_tell
+    text: "Hold the news until end of shift."
+    effects: { fuel: 6, trust: -1 }
+  - id: never_tell
+    text: "Withhold the news to preserve focus."
+    effects: { fuel: 3, trust: -2, hub: 1 }

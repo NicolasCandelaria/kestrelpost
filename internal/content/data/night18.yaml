@@ -1,0 +1,18 @@
+number: 18
+act: 4
+source: COLE_SCOUT
+hash: "door"
+pre_shift: "Pre-shift: dog alerts before footsteps reach the post; Bud checks in one last time."
+quote: |
+  "Cole's scout is physically near the station."
+incident: "Incident: physical proximity threat at the post; Bud arc resolves (part 3 of 3)."
+choices:
+  - id: blackout_protocol
+    text: "Kill lights and move to low-power receive mode."
+    effects: { fuel: 7, trust: 1 }
+  - id: decoy_transmit
+    text: "Transmit decoy traffic away from the post."
+    effects: { fuel: 12, hub: 1 }
+  - id: panic_broadcast
+    text: "Broadcast a wide distress call."
+    effects: { fuel: 10, trust: -1 }

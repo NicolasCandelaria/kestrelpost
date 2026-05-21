@@ -1,0 +1,18 @@
+number: 1
+act: 1
+source: MAREN
+hash: "9f2c"
+pre_shift: "Pre-shift: check the generator, feed the dog, and read the previous operator note."
+quote: |
+  "Kestrel, this is Maren at the hall. I need a route before dawn."
+incident: "Incident: none beyond routine static on a clear night."
+choices:
+  - id: route_school
+    text: "Send full route with hazards and verbal confirmation."
+    effects: { fuel: 12, hub: 2, trust: 1 }
+  - id: route_short
+    text: "Send shortest route and sign off quickly."
+    effects: { fuel: 8, hub: 1, trust: 1 }
+  - id: hold_position
+    text: "Delay movement and tell Maren to wait for more intel."
+    effects: { fuel: 3, hub: 0, trust: -1 }

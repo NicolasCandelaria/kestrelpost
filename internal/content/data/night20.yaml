@@ -1,0 +1,18 @@
+number: 20
+act: 4
+source: MAREN
+hash: "9f2c"
+pre_shift: "Pre-shift: final hour; all major threads converge."
+quote: |
+  "Move the hall, trust Harrow's dark plan, or take convoy extraction."
+incident: "Incident: final-hour fork that commits your ending path."
+choices:
+  - id: support_hall
+    text: "Spend the final hour supporting Maren's hub."
+    effects: { fuel: 16, hub: 3, trust: 2 }
+  - id: commit_dark_plan
+    text: "Sustain Harrow's closed-network protocol."
+    effects: { fuel: 10, set_harrow: true }
+  - id: trade_for_convoy
+    text: "Trade Maren's location for extraction."
+    effects: { fuel: 8, convoy_betray: true, trust: -3, hub: -2 }

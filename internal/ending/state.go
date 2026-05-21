@@ -6,21 +6,23 @@ type Config struct {
 
 	MThreshold int // maren_hub_support >= for THE_RELAY
 	TThreshold int // maren_trust >= for THE_RELAY
+	HThreshold int // sustained nights on Harrow plan for DARK_FREQUENCY
 
-	// RelayMinTerminalNight: e.g. 9 — fuel ran out on this night or later.
+	// RelayMinTerminalNight: fuel ran out on this night or later.
 	RelayMinTerminalNight int
 
-	// DeadAirExclusiveMaxTerminalNight: DEAD AIR when terminal_dark_night < this value (spec placeholder uses 7).
+	// DeadAirExclusiveMaxTerminalNight: GONE_DARK when terminal_dark_night < this value.
 	DeadAirExclusiveMaxTerminalNight int
 }
 
 func DefaultConfig() Config {
 	return Config{
-		KMax:                             3,
-		MThreshold:                       5,
-		TThreshold:                       3,
-		RelayMinTerminalNight:            9,
-		DeadAirExclusiveMaxTerminalNight: 7,
+		KMax:                             6,
+		MThreshold:                       14,
+		TThreshold:                       8,
+		HThreshold:                       5,
+		RelayMinTerminalNight:            16,
+		DeadAirExclusiveMaxTerminalNight: 16,
 	}
 }
 
@@ -30,9 +32,17 @@ type RunState struct {
 	Fuel              int
 	TerminalDarkNight int // night index when fuel first hit 0; 0 if not yet ended that way
 	HarrowDarkPlan    bool
+	HarrowDarkNights  int
 	KidInvestigation  int
 	OseiFullRelease   bool
 	ConvoyBetrayal    bool
 	MarenHubSupport   int
 	MarenTrust        int
+	DogAlive          bool
+	DogName           string
+	DogHunger         int
+	ThreadsPinned     []string
+	FrequenciesSeen   map[string]bool
+	Weather           string
+	NightFaults       []string
 }

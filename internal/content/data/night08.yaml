@@ -1,0 +1,18 @@
+number: 8
+act: 2
+source: ELLIE
+hash: "e11e"
+pre_shift: "Pre-shift: Ellie appears for the first time during a quiet scan gap."
+quote: |
+  "Ellie reads from her diary and does not know anyone is listening. She says she will be back tomorrow."
+incident: "Incident: recurring Ellie arc starts (part 1 of 3)."
+choices:
+  - id: break_protocol
+    text: "Break protocol and respond to Ellie's diary."
+    effects: { fuel: 9, trust: 1 }
+  - id: listen_quietly
+    text: "Listen quietly without interrupting."
+    effects: { fuel: 6, hub: 1 }
+  - id: tune_away
+    text: "Tune away to conserve power."
+    effects: { fuel: 2 }

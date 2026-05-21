@@ -1,0 +1,18 @@
+number: 4
+act: 1
+source: KID
+hash: "--"
+pre_shift: "Pre-shift: thread pinning is now active (maximum 4 threads)."
+quote: |
+  "Do geese still cross at dawn? I am counting."
+incident: "Incident: a second carrier shadow tracks each pause in the Kid transmission."
+choices:
+  - id: engage_kid
+    text: "Answer the Kid and probe for location details."
+    effects: { fuel: 10, kid: 2 }
+  - id: brief_reply
+    text: "Give a short answer and sign off."
+    effects: { fuel: 7, kid: 1 }
+  - id: cut_channel
+    text: "Flag the contact as suspicious and terminate the call."
+    effects: { fuel: 3, trust: -1, kid: -1 }

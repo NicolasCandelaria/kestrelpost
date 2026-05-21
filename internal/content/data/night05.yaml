@@ -1,0 +1,18 @@
+number: 5
+act: 1
+source: MAREN
+hash: "9f2c"
+pre_shift: "Pre-shift: review the old operator clue about a hidden fuel cache."
+quote: |
+  "If the convoy sighting was a guess, say so now."
+incident: "Incident: repeated relay click follows each transmission."
+choices:
+  - id: full_log_read
+    text: "Read timestamps, bearings, and uncertainty from the log."
+    effects: { fuel: 12, hub: 2, trust: 1 }
+  - id: partial_confidence
+    text: "Share your confidence level and caveats."
+    effects: { fuel: 8, hub: 1, trust: 1 }
+  - id: shut_down_plan
+    text: "Advise no movement toward the convoy."
+    effects: { fuel: 5, hub: 1, trust: -2 }

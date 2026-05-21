@@ -8,7 +8,7 @@ func ResolveEnding(cfg Config, s RunState) Ending {
 	if s.OseiFullRelease {
 		return FullBroadcast
 	}
-	if s.HarrowDarkPlan {
+	if s.HarrowDarkNights >= cfg.HThreshold {
 		return DarkFrequency
 	}
 	if s.KidInvestigation >= cfg.KMax && !s.OseiFullRelease {
@@ -23,5 +23,5 @@ func ResolveEnding(cfg Config, s RunState) Ending {
 		s.MarenTrust >= cfg.TThreshold {
 		return TheRelay
 	}
-	return Fallback
+	return DeadAir
 }

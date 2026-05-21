@@ -110,12 +110,17 @@ Both computers must be on the same Wi‑Fi or LAN. This does **not** work over t
 
 ## How to play
 
-1. On the intro screen, press almost any key (not **`q`**) to begin.
-2. Each **night**, press **`1`**, **`2`**, or **`3`** to choose your response.
-3. The run lasts up to **nine nights**. Your choices affect the ending; the game does not show stat labels like “+trust” on screen.
-4. When the run ends, read the epilogue. Press **`q`** to exit.
+1. Intro screen: press **`t`** for Tutorial Night 0, or **`enter`** to start the campaign.
+2. The campaign runs up to **20 nights** with a fixed night structure:
+   - **Pre-shift:** `enter` open radio, `f` feed dog, `p/u` pin or unpin thread, `l` read logbook note
+   - **Receive:** `1`, `2`, `3` choose response, `s` open scan
+   - **Scan:** arrows tune, `1-4` change band, `enter` lock signal, `r` return to receive
+   - **Incident / Logbook:** `enter` continue, `w` write note, `n` advance night
+3. On Night 1 pre-shift, name your dog first: **`1` Scout**, **`2` Ash**, or **`3` Bramble**.
+4. Save/load snapshot in pre-shift with **`k`** (save) and **`o`** (load).
+5. Endings resolve by hidden state (trust, hub support, Kid investigation, Harrow commitment, release/betrayal flags, and fuel runway). Press **`q`** to quit.
 
-**Reserve** (how much you can still push the rig) appears only in the **top bar**, not in the main story panel.
+The UI keeps resources diegetic: top bar shows gauge state words while the story panel uses rig cues and log lines.
 
 ---
 
@@ -152,4 +157,5 @@ go run ./cmd/kestrelpost
 - **Tests:** `go test ./...`
 - **Design:** `docs/superpowers/specs/2026-05-14-kestrel-post-ending-evaluator-design.md`
 - **Stack:** [Wish](https://github.com/charmbracelet/wish) + [Bubble Tea](https://github.com/charmbracelet/bubbletea) + [Lip Gloss](https://github.com/charmbracelet/lipgloss); UI chrome inspired by a [terminal.shop-style layout](https://github.com/IsaiahPapa/terminal.shop).
-- **Story / endings:** `internal/game/script.go` (nights), `internal/ending` (resolver).
+- **Story / nights:** `internal/content/data/*.yaml` (20-night campaign), `internal/game/session.go` (night FSM)
+- **Endings:** `internal/ending` (pure resolver + priority tests)

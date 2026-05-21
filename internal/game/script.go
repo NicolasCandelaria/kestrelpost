@@ -1,14 +1,16 @@
 package game
 
-// ActForNight maps nights 1–9 to act / “level” 1–3.
+// ActForNight maps nights 1–20 to act 1–4.
 func ActForNight(night int) int {
 	switch {
-	case night <= 3:
+	case night <= 5:
 		return 1
-	case night <= 6:
+	case night <= 10:
 		return 2
-	default:
+	case night <= 15:
 		return 3
+	default:
+		return 4
 	}
 }
 
@@ -16,11 +18,13 @@ func ActForNight(night int) int {
 func ActTitle(act int) string {
 	switch act {
 	case 1:
-		return "LEVEL I · STOCK AND SURGE"
+		return "ACT I · SETTLING IN"
 	case 2:
-		return "LEVEL II · STATIC AND SHADOW"
+		return "ACT II · PRESSURE BUILDING"
 	case 3:
-		return "LEVEL III · CONVOY WINDOW"
+		return "ACT III · CONVERGENCE"
+	case 4:
+		return "ACT IV · ENDGAME"
 	default:
 		return "LEVEL"
 	}

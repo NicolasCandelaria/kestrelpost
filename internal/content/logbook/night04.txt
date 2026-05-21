@@ -1,0 +1,1 @@
+Kid voice pattern repeats every third burst. Keep exact timestamps.

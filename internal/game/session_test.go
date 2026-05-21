@@ -4,36 +4,48 @@ import (
 	"testing"
 
 	"kestrelpost/internal/ending"
+	"kestrelpost/internal/night"
 )
 
 func TestSession_earlyFuelLoss_deadAir(t *testing.T) {
 	s := NewSession()
 	s.BeginFromIntro()
-	for s.Phase == PhaseNight {
-		// Night 6 is Harrow: choice 1 sets Harrow plan (resolver → DARK_FREQUENCY, not DEAD AIR).
-		if s.State.Night == 6 {
-			s.ApplyChoice(2)
-		} else {
-			s.ApplyChoice(1)
-		}
+	if !s.SetDogName(1) {
+		t.Fatal("expected dog naming on night 1")
 	}
+	for s.Phase == PhaseNight && s.State.Night <= 4 {
+		s.BeginReceiveWindow()
+		s.ApplyChoice(1)
+		s.ContinueAfterIncident()
+		s.EndNight()
+	}
+	s.Power.Consume(1000)
+	s.State.Fuel = 0
+	s.Mode = night.ModeLogbook
+	s.EndNight()
 	if s.Phase != PhaseGameOver {
 		t.Fatalf("phase = %v want game over", s.Phase)
 	}
-	if s.State.TerminalDarkNight >= 7 {
-		t.Fatalf("terminal night %d want <7 for dead air path", s.State.TerminalDarkNight)
+	if s.State.TerminalDarkNight >= 16 {
+		t.Fatalf("terminal night %d want <16 for gone dark path", s.State.TerminalDarkNight)
 	}
 	if g := s.Ending(); g != ending.DeadAir {
-		t.Fatalf("ending %v want DeadAir", g)
+		t.Fatalf("ending %v want GoneDark/DeadAir", g)
 	}
 }
 
-func TestSession_surviveNineNights_relay(t *testing.T) {
+func TestSession_surviveLateRun_relay(t *testing.T) {
 	s := NewSession()
 	s.BeginFromIntro()
-	for s.Phase == PhaseNight {
-		s.ApplyChoice(2) // −10/night; nine responses then runway shutdown
-	}
+	_ = s.SetDogName(1)
+	s.State.Night = 16
+	s.startNight()
+	s.State.MarenHubSupport = 20
+	s.State.MarenTrust = 10
+	s.Power.Consume(1000)
+	s.State.Fuel = 0
+	s.Mode = night.ModeLogbook
+	s.EndNight()
 	if s.Phase != PhaseGameOver {
 		t.Fatalf("phase = %v want game over", s.Phase)
 	}

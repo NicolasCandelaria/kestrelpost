@@ -1,0 +1,18 @@
+number: 15
+act: 3
+source: OTHER_OPERATOR
+hash: "7x"
+pre_shift: "Pre-shift: a second voice claims to be Operator Seven."
+quote: |
+  "Their history does not match yours, but the cadence does."
+incident: "Incident: identity challenge that changes interpretation more than mechanics."
+choices:
+  - id: believe
+    text: "Engage the caller and compare logs."
+    effects: { fuel: 9, kid: 1 }
+  - id: skeptical
+    text: "Probe the story for inconsistencies."
+    effects: { fuel: 7, trust: 1 }
+  - id: reject
+    text: "Reject the caller as a spoof and close the channel."
+    effects: { fuel: 3, trust: -1 }

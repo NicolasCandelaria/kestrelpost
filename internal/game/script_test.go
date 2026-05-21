@@ -9,7 +9,7 @@ func TestActForNight(t *testing.T) {
 	tests := []struct {
 		night, want int
 	}{
-		{1, 1}, {3, 1}, {4, 2}, {6, 2}, {7, 3}, {9, 3},
+		{1, 1}, {5, 1}, {6, 2}, {10, 2}, {11, 3}, {15, 3}, {16, 4}, {20, 4},
 	}
 	for _, tt := range tests {
 		if g := ActForNight(tt.night); g != tt.want {
@@ -18,7 +18,7 @@ func TestActForNight(t *testing.T) {
 	}
 }
 
-func TestNightScript_coversNineNights(t *testing.T) {
+func TestNightScript_coversLegacyNineNights(t *testing.T) {
 	for n := 1; n <= 9; n++ {
 		c := NightScript(n)
 		if c.Source == "" {

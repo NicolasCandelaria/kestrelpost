@@ -1,0 +1,18 @@
+number: 17
+act: 4
+source: GENERATOR
+hash: "surge"
+pre_shift: "Pre-shift: generator logs show unstable capacitor behavior; Father Jansen returns in background traffic."
+quote: |
+  "A critical call is incoming when the rig surges and goes silent."
+incident: "Incident: fixed generator surge causes forced silence during a key contact; Father Jansen arc resolves (part 3 of 3)."
+choices:
+  - id: wait_out_surge
+    text: "Wait through the full silence window and recover cleanly."
+    effects: { fuel: 12, trust: 1 }
+  - id: hot_restart
+    text: "Attempt a hot restart under load."
+    effects: { fuel: 15, hub: 1 }
+  - id: triage_only
+    text: "Log the outage and conserve remaining power."
+    effects: { fuel: 6 }

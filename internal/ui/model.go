@@ -3,26 +3,40 @@ package ui
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	tea "charm.land/bubbletea/v2"
 	"kestrelpost/internal/ending"
 	"kestrelpost/internal/game"
+	"kestrelpost/internal/night"
+	"kestrelpost/internal/save"
 )
 
 const txLogViewLines = 6
+const minTerminalWidth = 80
+const minTerminalHeight = 24
+
+type waterfallTickMsg struct{}
 
 // Model is the root Bubble Tea model for one SSH session.
 type Model struct {
 	session *game.Session
 	width   int // from WindowSizeMsg; chrome uses effectiveWidth(width)
+	height  int
 }
 
 func NewModel() *Model {
-	return &Model{session: game.NewSession(), width: 80}
+	return &Model{session: game.NewSession(), width: 80, height: 24}
 }
 
 func (m *Model) Init() tea.Cmd {
-	return tea.RequestWindowSize
+	return tea.Batch(tea.RequestWindowSize, tickWaterfall())
+}
+
+func tickWaterfall() tea.Cmd {
+	return tea.Tick(200*time.Millisecond, func(_ time.Time) tea.Msg {
+		return waterfallTickMsg{}
+	})
 }
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -33,7 +47,16 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.Width > 0 {
 			m.width = msg.Width
 		}
+		if msg.Height > 0 {
+			m.height = msg.Height
+		}
 		return m, nil
+	case waterfallTickMsg:
+		if m.session.Phase == game.PhaseNight && m.session.Mode == night.ModeScan {
+			m.session.ScanCurrentFrequency(2)
+			return m, tickWaterfall()
+		}
+		return m, tickWaterfall()
 	case tea.KeyPressMsg:
 		return m.dispatchKey(msg.String(), msg.Key())
 	case tea.KeyReleaseMsg:
@@ -55,13 +78,131 @@ func (m *Model) dispatchKey(ks string, k tea.Key) (tea.Model, tea.Cmd) {
 
 	switch m.session.Phase {
 	case game.PhaseIntro:
-		if introAdvances(ks, k) {
+		if ks == "t" {
+			m.session.BeginTutorial()
+		} else if ks == "o" || introConfirmKeys(ks, k) {
 			m.session.BeginFromIntro()
 		}
 		return m, nil
+	case game.PhaseTutorial:
+		if introConfirmKeys(ks, k) {
+			m.session.FinishTutorial()
+		}
+		return m, nil
 	case game.PhaseNight:
-		if choice, ok := nightChoiceFromKey(ks, k); ok {
-			m.session.ApplyChoice(choice)
+		switch m.session.Mode {
+		case night.ModePreShift:
+			handled := false
+			if m.session.NeedsDogName && m.session.State.Night == 1 {
+				if choice, ok := nightChoiceFromKey(ks, k); ok {
+					handled = m.session.SetDogName(choice)
+				}
+				if !handled {
+					m.session.LastAction = "Name your dog first: [1] Scout, [2] Ash, [3] Bramble."
+				}
+				return m, nil
+			}
+			if ks == "f" {
+				handled = true
+				m.session.FeedDog()
+			} else if ks == "k" {
+				handled = true
+				_ = save.Save("", save.Snapshot{
+					State:       m.session.State,
+					Logbook:     append([]string(nil), m.session.Logbook...),
+					UnlockCount: len(m.session.State.FrequenciesSeen),
+				})
+				m.session.LastAction = "Saved snapshot."
+			} else if ks == "o" {
+				handled = true
+				if snap, err := save.Load(""); err == nil {
+					m.session.State = snap.State
+					m.session.Logbook = append([]string(nil), snap.Logbook...)
+					m.session.LastAction = "Loaded snapshot."
+				} else {
+					m.session.LastAction = "Load failed: no snapshot found."
+				}
+			} else if ks == "p" {
+				handled = true
+				m.session.PinSource()
+			} else if ks == "u" {
+				handled = true
+				m.session.UnpinSource()
+			} else if ks == "l" {
+				handled = true
+				m.session.LoadLogbookEntry()
+			} else if introConfirmKeys(ks, k) {
+				handled = true
+				m.session.BeginReceiveWindow()
+			}
+			if !handled {
+				m.session.LastAction = fmt.Sprintf("No action for key %q in pre-shift.", displayKey(ks))
+			}
+		case night.ModeReceive:
+			handled := false
+			if ks == "s" {
+				handled = true
+				m.session.EnterScan()
+				return m, nil
+			}
+			if choice, ok := nightChoiceFromKey(ks, k); ok {
+				handled = true
+				m.session.ApplyChoice(choice)
+			}
+			if !handled {
+				m.session.LastAction = fmt.Sprintf("No action for key %q in receive mode.", displayKey(ks))
+			}
+		case night.ModeScan:
+			handled := true
+			switch ks {
+			case "left":
+				m.session.Tune(-0.1)
+			case "right":
+				m.session.Tune(0.1)
+			case "S-left":
+				m.session.Tune(-0.01)
+			case "S-right":
+				m.session.Tune(0.01)
+			case "1", "2", "3", "4":
+				switch ks {
+				case "1":
+					m.session.SetBand(1)
+				case "2":
+					m.session.SetBand(2)
+				case "3":
+					m.session.SetBand(3)
+				case "4":
+					m.session.SetBand(4)
+				}
+			case "r":
+				m.session.ExitScan()
+			case "enter":
+				m.session.ScanCurrentFrequency(2)
+			default:
+				handled = false
+			}
+			if !handled {
+				m.session.LastAction = fmt.Sprintf("No action for key %q in scan mode.", displayKey(ks))
+			}
+		case night.ModeIncident:
+			if introConfirmKeys(ks, k) {
+				m.session.ContinueAfterIncident()
+			} else {
+				m.session.LastAction = fmt.Sprintf("Press [enter] to continue (got %q).", displayKey(ks))
+			}
+		case night.ModeLogbook:
+			handled := false
+			if ks == "w" {
+				handled = true
+				m.session.WriteLogbook("operator note filed.")
+			}
+			if ks == "n" || introConfirmKeys(ks, k) {
+				handled = true
+				m.session.EndNight()
+			}
+			if !handled {
+				m.session.LastAction = fmt.Sprintf("No action for key %q in logbook mode.", displayKey(ks))
+			}
 		}
 		return m, nil
 	case game.PhaseGameOver:
@@ -151,42 +292,50 @@ func nightChoiceFromKey(ks string, k tea.Key) (int, bool) {
 func endingHeadline(e ending.Ending) string {
 	switch e {
 	case ending.TheRelay:
-		return "The relay held — long enough for the hall to believe morning."
+		return "THE RELAY: You kept the network up long enough to help the hall."
 	case ending.DarkFrequency:
-		return "You went tight. The wide band went quiet without forgiving anyone."
+		return "DARK FREQUENCY: You committed to Harrow's closed network."
 	case ending.TheKidWasRight:
-		return "The kid’s thread closed on something that wasn’t a voice."
+		return "THE KID WAS RIGHT: The clue chain reached its final stage."
 	case ending.FullBroadcast:
-		return "The loop left your tower and kept running without your hand on it."
+		return "FULL BROADCAST: You released Osei's recording publicly."
 	case ending.TheConvoy:
-		return "You traded the map for a seat. The road remembers both."
+		return "THE CONVOY: You traded Maren's safety for extraction."
 	case ending.DeadAir:
-		return "The generator quit before the story did."
+		return "GONE DARK: Fuel ran out before the network stabilized."
 	case ending.Fallback:
-		return "The log ended in a verdict the night wouldn’t name."
+		return "FALLBACK: No major ending condition was fully met."
 	default:
-		return "Closure."
+		return "Run complete."
 	}
 }
 
-func epilogueParagraph(e ending.Ending) string {
+func epilogueParagraph(e ending.Ending, s game.Session) string {
+	dogLine := "The old dog sleeps by the stove, still here for morning."
+	if !s.Dog.Alive {
+		dogLine = "The bunk is empty where the dog used to sleep."
+	}
+	freqLine := ""
+	if len(s.State.FrequenciesSeen) > 0 {
+		freqLine = fmt.Sprintf(" You logged %d discovered side-frequency threads.", len(s.State.FrequenciesSeen))
+	}
 	switch e {
 	case ending.TheRelay:
-		return "The hall stayed lit. Maren’s voice thinned to static, then steadied as the convoy hash matched yours. You stayed on the key until the window closed—not heroics, just timing. The north held one more night because someone kept answering when answering still mattered."
+		return "You kept supporting Maren's hub through the late nights and held trust. The hall remained organized long enough to move people safely. " + dogLine + freqLine
 	case ending.DarkFrequency:
-		return "Harrow’s carrier outlasted your denial. What you thought was noise lined up into steps—someone else walking the same band plan. You finished the shift with clean hands and a dirty frequency; the next op inherits the hum you wouldn’t name."
+		return "You prioritized Harrow's closed-network strategy for multiple nights. Wide-band traffic dropped, and your run ended focused on controlled channels over public broadcast. " + dogLine + freqLine
 	case ending.TheKidWasRight:
-		return "The kid’s tally wasn’t gossip; it was triangulation. When the proof landed, it wasn’t loud—just inevitable, like a fuse counting down in someone else’s pocket. You kept the chair warm; they took the story out the door."
+		return "You followed the Kid's clues deeply enough to reach the hidden payoff path. The final pattern matched the warnings you tracked across the campaign. " + dogLine + freqLine
 	case ending.FullBroadcast:
-		return "Osei’s packet wasn’t a leak—it was a handoff. The full release washed the board clean and drowned nuance in signal. You did what the procedure demanded; the air belongs to everyone now, including the parts nobody’s ready to hear."
+		return "You broadcast Osei's recording openly. Everyone got the same information at once, including groups you could not control. " + dogLine + freqLine
 	case ending.TheConvoy:
-		return "The convoy key lied, and the log caught the seam too late. Trust didn’t break in one message—it sheared along an old fault you’d been papering over with procedure. You signed off correct; the road still went wrong."
+		return "You accepted convoy extraction by giving up protected location data. The immediate outcome favored your escape, but it broke trust with Maren's side. " + dogLine + freqLine
 	case ending.DeadAir:
-		return "The last frames are breath and backoff. Maren’s side went dark while you were still reaching for the next prefix. The ending isn’t moral—it’s mechanical: the machine ran out of room to be kind."
+		return "Power failed before the campaign reached a stable late-game state. Your run ended from resource collapse rather than a major faction decision. " + dogLine + freqLine
 	case ending.Fallback:
-		return "The board closed on a verdict that fit the numbers more than the night. Nothing dramatic in the log—just drift, compromise, and the ordinary way a relay stops being yours. You shut it down; the story keeps going without a headline."
+		return "Your choices did not lock into a top-priority ending path. The run closed on mixed outcomes and incomplete threads. " + dogLine + freqLine
 	default:
-		return "The run ended outside the labeled paths—telemetry intact, narrative thin. File it under operator variance: the machine got an answer even if the myth didn’t."
+		return "The run ended outside named paths. " + dogLine + freqLine
 	}
 }
 
@@ -204,18 +353,33 @@ func (m *Model) View() tea.View {
 	var b strings.Builder
 	switch m.session.Phase {
 	case game.PhaseIntro:
+		if m.width < minTerminalWidth || m.height < minTerminalHeight {
+			b.WriteString(fmt.Sprintf("Terminal too small (%dx%d). DEAD AIR requires at least %dx%d.\n", m.width, m.height, minTerminalWidth, minTerminalHeight))
+			b.WriteString("Resize your terminal and reconnect.\n")
+			break
+		}
 		b.WriteString("RELAY POST KESTREL\n\n")
-		b.WriteString("Northern Manitoba. A repeater tower that used to run itself—until the chain broke mid-event and left you holding the key.\n\n")
-		b.WriteString("You are OPERATOR 7. On paper you’re redundancy. In practice you’re the voice people find when the usual nets go strange: Maren at the hall, strangers on scan, ")
-		b.WriteString("sometimes a second operator who signs like a colleague and argues like a strategist.\n\n")
-		b.WriteString("Each night the band fills with requests for truth, time, and silence you can’t give everyone. Listen, answer, or refuse—then live in what that costs.\n\n")
-		b.WriteString("Use the footer keys when you’re ready. Bare modifier taps won’t start a shift.\n")
+		b.WriteString("You are Operator Seven at a remote radio post.\n")
+		b.WriteString("Each night follows the same loop: pre-shift checks, receive calls, optional scan, incident, then logbook.\n\n")
+		b.WriteString("Controls on shift:\n")
+		b.WriteString("  intro: [t] tutorial, [enter] start campaign\n")
+		b.WriteString("  pre-shift: [enter] open radio, [f] feed dog, [p]/[u] pin or unpin thread, [l] read logbook\n")
+		b.WriteString("  receive: [1]/[2]/[3] choose response, [s] open scan\n")
+		b.WriteString("  scan: arrows tune, [1]-[4] change band, [enter] lock signal, [r] return to receive\n")
+		b.WriteString("  incident/logbook: [enter] continue, [w] write note, [n] next night\n")
+	case game.PhaseTutorial:
+		b.WriteString("TUTORIAL NIGHT 0\n\n")
+		b.WriteString("Recorded note: Check generator, feed the dog, and confirm band before transmitting.\n\n")
+		b.WriteString("Press [enter] to begin Night 1.\n")
 	case game.PhaseNight:
 		s := &m.session.State
-		card := m.session.CurrentNightCard()
+		card := m.session.CurrentNight()
 		b.WriteString(game.ActTitle(card.Act))
 		b.WriteString("\n\n")
-		b.WriteString(fmt.Sprintf("SHIFT · NIGHT %d\n\n", s.Night))
+		b.WriteString(fmt.Sprintf("SHIFT · NIGHT %d · MODE %s\n\n", s.Night, m.session.Mode.String()))
+		b.WriteString("LAST ACTION\n")
+		b.WriteString("────────────────────────────────────────\n")
+		b.WriteString(m.session.LastAction + "\n\n")
 		if tail := tailStrings(m.session.TxLog, txLogViewLines); len(tail) > 0 {
 			b.WriteString("TRANSMISSION LOG (tail)\n")
 			for _, line := range tail {
@@ -225,20 +389,60 @@ func (m *Model) View() tea.View {
 			}
 			b.WriteString("\n")
 		}
-		b.WriteString(fmt.Sprintf("INCOMING — %s  (%s)\n", card.Source, card.Hash))
-		b.WriteString("────────────────────────────────────────\n")
-		b.WriteString(card.Quote)
-		b.WriteString("\n\n")
-		for i := range card.Choices {
-			ch := card.Choices[i]
-			b.WriteString(fmt.Sprintf("  [%d]  %s\n", i+1, ch.Reply))
+		b.WriteString(fmt.Sprintf("DOG %s (%s)  POWER %s  FUEL CHECK %d\n\n", m.session.Dog.Name, dogState(m.session), m.session.Power.Gauge(), s.Fuel))
+		switch m.session.Mode {
+		case night.ModePreShift:
+			b.WriteString("PRE-SHIFT CHECKS\n")
+			b.WriteString("────────────────────────────────────────\n")
+			b.WriteString(card.PreShift + "\n\n")
+			if m.session.NeedsDogName && m.session.State.Night == 1 {
+				b.WriteString("DOG NAME REQUIRED\n")
+				b.WriteString("  [1] Scout   [2] Ash   [3] Bramble\n\n")
+			}
+			if len(m.session.Logbook) > 0 {
+				b.WriteString("LOGBOOK ENTRY (latest)\n")
+				b.WriteString("  " + m.session.Logbook[len(m.session.Logbook)-1] + "\n\n")
+			}
+			b.WriteString("Pinned threads: ")
+			pins := m.session.Pins.Items()
+			if len(pins) == 0 {
+				b.WriteString("(none)\n")
+			} else {
+				b.WriteString(strings.Join(pins, ", ") + "\n")
+			}
+		case night.ModeReceive:
+			b.WriteString(fmt.Sprintf("INCOMING — %s  (%s)\n", card.Source, card.Hash))
+			b.WriteString("────────────────────────────────────────\n")
+			b.WriteString(card.Quote + "\n\n")
+			for i := range card.Choices {
+				ch := card.Choices[i]
+				b.WriteString(fmt.Sprintf("  [%d]  %s\n", i+1, ch.Text))
+			}
+		case night.ModeScan:
+			b.WriteString("SCAN MODE\n")
+			b.WriteString("────────────────────────────────────────\n")
+			b.WriteString(m.session.Waterfall(2, 60) + "\n\n")
+			if m.session.ScannedText != "" {
+				b.WriteString("Signal lock: " + m.session.ScannedText + "\n")
+			} else {
+				b.WriteString("Signal lock: none\n")
+			}
+		case night.ModeIncident:
+			b.WriteString("INCIDENT\n")
+			b.WriteString("────────────────────────────────────────\n")
+			b.WriteString(card.Incident + "\n\n")
+			b.WriteString("Press [enter] to acknowledge and open the end-of-shift log.\n")
+		case night.ModeLogbook:
+			b.WriteString("END-OF-SHIFT LOG\n")
+			b.WriteString("────────────────────────────────────────\n")
+			b.WriteString("Press [w] to write a note, then [n] or [enter] for next night.\n")
 		}
 	case game.PhaseGameOver:
 		e := m.session.Ending()
 		b.WriteString("END OF RUN\n\n")
 		b.WriteString(endingHeadline(e))
 		b.WriteString("\n\n")
-		b.WriteString(epilogueParagraph(e))
+		b.WriteString(epilogueParagraph(e, *m.session))
 		b.WriteString("\n")
 	}
 	framed := shopFrame(m.width, m.session.Phase, m.session.State.Night, m.session.State.Fuel, b.String())
@@ -248,3 +452,23 @@ func (m *Model) View() tea.View {
 }
 
 func (m *Model) String() string { return fmt.Sprintf("%T", m) }
+
+func dogState(s *game.Session) string {
+	if !s.Dog.Alive {
+		return "missing"
+	}
+	if s.Dog.Hunger == 0 {
+		return "fed"
+	}
+	if s.Dog.Hunger >= 3 {
+		return "critical"
+	}
+	return "hungry"
+}
+
+func displayKey(ks string) string {
+	if strings.TrimSpace(ks) == "" {
+		return "unknown"
+	}
+	return ks
+}

@@ -87,16 +87,16 @@ func headerBar(w int, phase game.Phase, night, fuel int) string {
 		return st.Width(cellW).Render(keyPart + restStyled)
 	}
 
-	c1 := cell(relayOn, "r", "relay", "")
-	c2 := cell(false, "l", "log", "")
+	c1 := cell(relayOn, "r", "radio", "")
+	c2 := cell(phase == game.PhaseNight, "s", "scan", "")
 	c3 := cell(false, "n", "night", fmt.Sprintf("%d", night))
-	c4 := cell(false, "f", "reserve", fmt.Sprintf("%d", fuel))
+	c4 := cell(false, "g", "power", gaugeWord(fuel))
 
 	return root.Width(w).Render(lg.JoinHorizontal(lg.Top, c1, c2, c3, c4))
 }
 
 func promoLine(w int) string {
-	s := "RELAY NORTHERN MANITOBA · HF AUTOMATION OFFLINE · OPERATOR 7"
+	s := "Kestrel Post · Northern Manitoba · Operator Seven"
 	return muted.Width(w).Align(lg.Center).Render(s)
 }
 
@@ -104,13 +104,16 @@ func footerBar(w int, phase game.Phase) string {
 	var left, right string
 	switch phase {
 	case game.PhaseIntro:
-		left = keyLo.Render("enter") + root.Render(" begin  ·  ") + keyLo.Render("any key") + root.Render(" start")
+		left = keyLo.Render("t") + root.Render(" tutorial  ·  ") + keyLo.Render("enter") + root.Render(" start")
+		right = keyLo.Render("q") + root.Render(" quit")
+	case game.PhaseTutorial:
+		left = keyLo.Render("enter") + root.Render(" start night 1")
 		right = keyLo.Render("q") + root.Render(" quit")
 	case game.PhaseNight:
-		left = keyLo.Render("1") + root.Render(" · ") + keyLo.Render("2") + root.Render(" · ") + keyLo.Render("3") + root.Render(" respond")
+		left = keyLo.Render("1/2/3") + root.Render(" choose  ·  ") + keyLo.Render("s") + root.Render(" scan  ·  ") + keyLo.Render("f") + root.Render(" feed dog")
 		right = keyLo.Render("q") + root.Render(" quit")
 	default:
-		left = muted.Render("run complete")
+		left = muted.Render("run ended")
 		right = keyLo.Render("q") + root.Render(" quit")
 	}
 	lw, rw := lg.Width(left), lg.Width(right)
@@ -119,6 +122,21 @@ func footerBar(w int, phase game.Phase) string {
 		pad = 2
 	}
 	return root.Width(w).Render(left + strings.Repeat(" ", pad) + right)
+}
+
+func gaugeWord(fuel int) string {
+	switch {
+	case fuel <= 0:
+		return "empty"
+	case fuel <= 20:
+		return "critical"
+	case fuel <= 45:
+		return "low"
+	case fuel <= 75:
+		return "steady"
+	default:
+		return "full"
+	}
 }
 
 func shopFrame(width int, phase game.Phase, night, fuel int, body string) string {
@@ -134,7 +152,7 @@ func shopFrame(width int, phase game.Phase, night, fuel int, body string) string
 
 	rule := lg.NewStyle().Foreground(colLine).Width(w).Render(strings.Repeat("─", w))
 	foot := footerBar(w, phase)
-	bottom := root.Width(w).Render(promoLine(w)+"\n"+rule+"\n"+foot)
+	bottom := root.Width(w).Render(promoLine(w) + "\n" + rule + "\n" + foot)
 
 	return root.Width(w).Render(head + "\n" + mid + "\n" + bottom)
 }

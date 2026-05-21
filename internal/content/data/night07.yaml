@@ -1,0 +1,18 @@
+number: 7
+act: 2
+source: LINGUIST
+hash: "7f00"
+pre_shift: "Pre-shift: overcast conditions reduce range across all bands."
+quote: |
+  "Unknown voice addresses Operator Seven in a calm foreign cadence."
+incident: "Incident: untranslatable contact fades before identification."
+choices:
+  - id: archive_voice
+    text: "Record the voice and mark it for later comparison."
+    effects: { fuel: 8, kid: 1 }
+  - id: repeat_callsign
+    text: "Repeat your callsign and wait for a response."
+    effects: { fuel: 6 }
+  - id: ignore_voice
+    text: "Ignore the contact and return to Maren's channel."
+    effects: { fuel: 3, trust: -1 }

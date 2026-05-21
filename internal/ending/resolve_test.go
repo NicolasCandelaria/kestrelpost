@@ -38,11 +38,22 @@ func TestResolveEnding_kidWhenNoBroadcast(t *testing.T) {
 func TestResolveEnding_darkFrequencyAfterKidBlock(t *testing.T) {
 	cfg := DefaultConfig()
 	s := RunState{
-		HarrowDarkPlan:   true,
+		HarrowDarkNights: cfg.HThreshold,
 		KidInvestigation: cfg.KMax,
 	}
 	if g := ResolveEnding(cfg, s); g != DarkFrequency {
 		t.Fatalf("got %v want DarkFrequency", g)
+	}
+}
+
+func TestResolveEnding_harrowFlagAloneNotEnough(t *testing.T) {
+	cfg := DefaultConfig()
+	s := RunState{
+		HarrowDarkPlan:   true,
+		HarrowDarkNights: cfg.HThreshold - 1,
+	}
+	if g := ResolveEnding(cfg, s); g != DeadAir {
+		t.Fatalf("got %v want DeadAir fallback mapping", g)
 	}
 }
 
@@ -78,8 +89,8 @@ func TestResolveEnding_relayFailsLowTrust(t *testing.T) {
 		MarenHubSupport:   cfg.MThreshold,
 		MarenTrust:        cfg.TThreshold - 1,
 	}
-	if g := ResolveEnding(cfg, s); g != Fallback {
-		t.Fatalf("got %v want Fallback", g)
+	if g := ResolveEnding(cfg, s); g != DeadAir {
+		t.Fatalf("got %v want DeadAir fallback mapping", g)
 	}
 }
 
@@ -91,7 +102,7 @@ func TestResolveEnding_relayFailsLowHub(t *testing.T) {
 		MarenHubSupport:   cfg.MThreshold - 1,
 		MarenTrust:        cfg.TThreshold,
 	}
-	if g := ResolveEnding(cfg, s); g != Fallback {
-		t.Fatalf("got %v want Fallback", g)
+	if g := ResolveEnding(cfg, s); g != DeadAir {
+		t.Fatalf("got %v want DeadAir fallback mapping", g)
 	}
 }

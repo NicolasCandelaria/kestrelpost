@@ -1,0 +1,18 @@
+number: 6
+act: 2
+source: HARROW
+hash: "b81d"
+pre_shift: "Pre-shift: scan identifies a new work channel likely tied to Cole."
+quote: |
+  "Split traffic with Harrow and keep the wide bands dark."
+incident: "Incident: Harrow repeats a channel-discipline warning."
+choices:
+  - id: accept_harrow
+    text: "Accept Harrow's closed-network channel split."
+    effects: { fuel: 10, hub: 1, set_harrow: true }
+  - id: limited_coordination
+    text: "Offer time windows but keep Maren traffic local."
+    effects: { fuel: 8, hub: 1 }
+  - id: refuse_harrow
+    text: "Refuse cooperation and close the link."
+    effects: { fuel: 4, trust: -1 }

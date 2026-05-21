@@ -1,0 +1,18 @@
+number: 16
+act: 4
+source: UTILITY
+hash: "wx0"
+pre_shift: "Pre-shift: automated weather service goes dark; Ellie returns once more."
+quote: |
+  "No weather broadcast. You have to infer from pressure and sky."
+incident: "Incident: trusted weather source is gone; Ellie arc resolves (part 3 of 3)."
+choices:
+  - id: manual_forecast
+    text: "Run conservative routing because weather is uncertain."
+    effects: { fuel: 10, hub: 2, trust: 1 }
+  - id: normal_ops
+    text: "Continue normal routing without weather data."
+    effects: { fuel: 7, hub: 1 }
+  - id: risky_push
+    text: "Push long-range traffic through likely storm conditions."
+    effects: { fuel: 5, trust: -1 }

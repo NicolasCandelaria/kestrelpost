@@ -1,0 +1,18 @@
+number: 11
+act: 3
+source: SUPPLY
+hash: "drop"
+pre_shift: "Pre-shift: supply drop window opens if you contact the right relay; Ellie returns."
+quote: |
+  "One drone pass tonight. Confirm call-sign and location."
+incident: "Incident: conditional refuel window; Ellie arc continues (part 2 of 3)."
+choices:
+  - id: coordinate_drop
+    text: "Coordinate a verified supply drop and refuel."
+    effects: { fuel: -2, hub: 2, trust: 1 }
+  - id: skip_drop
+    text: "Skip the drop to stay off hostile radar."
+    effects: { fuel: 5 }
+  - id: leak_route
+    text: "Share full route details and risk interception."
+    effects: { fuel: 8, trust: -2 }

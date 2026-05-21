@@ -28,7 +28,7 @@ func (e Ending) String() string {
 	case TheConvoy:
 		return "THE_CONVOY"
 	case DeadAir:
-		return "DEAD_AIR"
+		return "GONE_DARK"
 	case Fallback:
 		return "FALLBACK"
 	default:

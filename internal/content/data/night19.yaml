@@ -1,0 +1,18 @@
+number: 19
+act: 4
+source: OSEI
+hash: "loop"
+pre_shift: "Pre-shift: you can finally decode the full Osei recording."
+quote: |
+  "Release it broadly, share selectively, or bury it."
+incident: "Incident: truth-in-hand decision with major ending impact."
+choices:
+  - id: full_release
+    text: "Broadcast the full recording on open frequencies."
+    effects: { fuel: 14, osei_release: true }
+  - id: targeted_release
+    text: "Share the recording only with trusted contacts."
+    effects: { fuel: 9, hub: 2, trust: 1 }
+  - id: suppress_recording
+    text: "Keep the recording off air."
+    effects: { fuel: 4, trust: -1 }
